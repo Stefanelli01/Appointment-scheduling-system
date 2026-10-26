@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Scheduling System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+    <header class="header-container">
+
+        <div class="header-titles">
+            <h1>Appointment Scheduler</h1>
+        </div>
+
+        <div class="theme-switch-wrapper">
+            <label class="theme-switch" for="theme-toggle">
+                <input type="checkbox" id="theme-toggle" aria-label="Toggle Dark/Light Mode">
+                <span class="slider"></span>
+            </label>
+            <span class="theme-label">Toggle Theme</span>
+        </div>
+
+    </header>
+
+
+    <section class="card">
+
+        <h2>Book New Appointment</h2>
+        <form id="appointment-form">
+            <div class="form-group">
+                <label for="client_name">Client Name</label>
+                <input type="text" id="client_name" required placeholder="Luiz Stefanelli">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="client_email">Email</label>
+                    <input type="email" id="client_email" required placeholder="stefanelli@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="client_phone">Phone</label>
+                    <input type="tel" id="client_phone" required placeholder="+1 00 00000 0000">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="service_name">Service</label>
+                    <input type="text" id="service_name" required placeholder="General Consultation">
+                </div>
+
+                <div class="form-group">
+                    <label for="appointment_date">Date</label>
+                    <input type="date" id="appointment_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="appointment_time">Time</label>
+                    <input type="time" id="appointment_time" required>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+        </form>
+
+    </section>
+
+    <section class="card">
+        <div class="list-header">
+            <h2>Appointments</h2>
+            <div class="filter-group">
+                <label for="status-filter">Filter Status:</label>
+                <select id="status-filter">
+                    <option value="">All</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Canceled">Canceled</option>
+                </select>
+            </div>
+        </div>
+
+        <table class="data-table">
+
+            <thead>
+            <tr>
+                <th>Client</th>
+                <th>Service</th>
+                <th>Date & Time</th>
+                <th>Contact</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody id="appointments-tbody">
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
