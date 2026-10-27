@@ -12,7 +12,7 @@ A simple, modern, and lightweight web application designed to manage, track, and
 - Frontend: HTML5, CSS3, JavaScript (Fetch API)
 - Backend: Python (Flask / FastAPI)
 - Database: MariaDB
-- Authentication/ORM: (Optional / To be implemented)
+- Authentication
 
 ## Screenshots
 
