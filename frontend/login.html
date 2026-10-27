@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Appointment Scheduler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container" style="max-width: 400px; margin-top: 3rem;">
+
+    <header class="header-container" style="justify-content: space-between; align-items: center;">
+        <div class="header-titles">
+            <h1>Appointment Scheduler</h1>
+            <p>Sign in to manage appointments</p>
+        </div>
+
+        <div class="theme-switch-wrapper">
+            <label class="theme-switch" for="theme-toggle">
+                <input type="checkbox" id="theme-toggle" aria-label="Toggle Dark/Light Mode">
+                <span class="slider"></span>
+            </label>
+            <span class="theme-label">Theme</span>
+        </div>
+    </header>
+
+    <section class="card">
+        <h2>Login</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login_email">Email</label>
+                <input type="email" id="login_email" required placeholder="john@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="login_password">Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="login_password" required placeholder="••••••••" style="padding-right: 2.5rem;">
+                    <button type="button" class="eye-btn" id="toggle-password" aria-label="Toggle password visibility">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle class="eye-open" cx="12" cy="12" r="3"></circle>
+                            <line class="eye-strike" x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem; color: var(--text-muted);">
+            Don't have an account? <a href="register.html" style="color: var(--btn-primary-bg); font-weight: 600; text-decoration: none;">Register here</a>
+        </p>
+    </section>
+
+</div>
+
+<script>
+    const API_URL = 'http://127.0.0.1:5000/api';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+        document.getElementById('theme-toggle').addEventListener('change', toggleTheme);
+    });
+
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const themeToggle = document.getElementById('theme-toggle');
+
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.body.classList.add('dark-mode');
+            themeToggle.checked = true;
+        } else {
+            document.body.classList.remove('dark-mode');
+            themeToggle.checked = false;
+        }
+    }
+
+    function toggleTheme(e) {
+        if (e.target.checked) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    document.getElementById('toggle-password').addEventListener('click', function() {
+        const passwordInput = document.getElementById('login_password');
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        this.classList.toggle('active', isPassword);
+    });
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('login_email').value;
+        const password = document.getElementById('login_password').value;
+
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('authToken', data.token);
+                window.location.href = 'index.html';
+            } else {
+                alert('Login failed: ' + (data.error || 'Invalid credentials'));
+            }
+        } catch (error) {
+            console.error('Error logging in:', error);
+            alert('Unable to connect to the server.');
+        }
+    });
+</script>
+</body>
+</html>

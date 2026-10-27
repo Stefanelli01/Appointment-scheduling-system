@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Appointment Scheduler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container" style="max-width: 400px; margin-top: 3rem;">
+
+    <header class="header-container" style="justify-content: space-between; align-items: center;">
+        <div class="header-titles">
+            <h1>Appointment Scheduler</h1>
+            <p>Create a new account</p>
+        </div>
+
+        <div class="theme-switch-wrapper">
+            <label class="theme-switch" for="theme-toggle">
+                <input type="checkbox" id="theme-toggle" aria-label="Toggle Dark/Light Mode">
+                <span class="slider"></span>
+            </label>
+            <span class="theme-label">Theme</span>
+        </div>
+    </header>
+
+    <section class="card">
+        <h2>Register</h2>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="reg_name">Full Name</label>
+                <input type="text" id="reg_name" required placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label for="reg_email">Email</label>
+                <input type="email" id="reg_email" required placeholder="john@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="reg_password">Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="reg_password" required placeholder="••••••••" style="padding-right: 2.5rem;">
+                    <button type="button" class="eye-btn" id="toggle-reg-password" aria-label="Toggle password visibility">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle class="eye-open" cx="12" cy="12" r="3"></circle>
+                            <line class="eye-strike" x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="reg_confirm_password">Confirm Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="reg_confirm_password" required placeholder="••••••••" style="padding-right: 2.5rem;">
+                    <button type="button" class="eye-btn" id="toggle-confirm-password" aria-label="Toggle password visibility">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle class="eye-open" cx="12" cy="12" r="3"></circle>
+                            <line class="eye-strike" x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem; color: var(--text-muted);">
+            Already have an account? <a href="login.html" style="color: var(--btn-primary-bg); font-weight: 600; text-decoration: none;">Sign in</a>
+        </p>
+    </section>
+
+</div>
+
+<script>
+    const API_URL = 'http://127.0.0.1:5000/api';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+        document.getElementById('theme-toggle').addEventListener('change', toggleTheme);
+    });
+
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const themeToggle = document.getElementById('theme-toggle');
+
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.body.classList.add('dark-mode');
+            themeToggle.checked = true;
+        } else {
+            document.body.classList.remove('dark-mode');
+            themeToggle.checked = false;
+        }
+    }
+
+    function toggleTheme(e) {
+        if (e.target.checked) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    document.getElementById('toggle-reg-password').addEventListener('click', function() {
+        const input = document.getElementById('reg_password');
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        this.classList.toggle('active', isPassword);
+    });
+
+    document.getElementById('toggle-confirm-password').addEventListener('click', function() {
+        const input = document.getElementById('reg_confirm_password');
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        this.classList.toggle('active', isPassword);
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('reg_name').value;
+        const email = document.getElementById('reg_email').value;
+        const password = document.getElementById('reg_password').value;
+        const confirmPassword = document.getElementById('reg_confirm_password').value;
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match!');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Account created successfully! Redirecting to login...');
+                window.location.href = 'login.html';
+            } else {
+                alert('Registration failed: ' + (data.error || 'User already exists'));
+            }
+        } catch (error) {
+            console.error('Error creating user:', error);
+            alert('Unable to connect to the server.');
+        }
+    });
+</script>
+</body>
+</html>

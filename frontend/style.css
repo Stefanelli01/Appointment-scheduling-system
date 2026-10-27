@@ -22,6 +22,9 @@
 
     --switch-slider-bg: #d4d4d8;
     --switch-active-bg: #facc15;
+
+    --preview-bg: #f8fafc;
+    --preview-border: #cbd5e1;
 }
 
 body.dark-mode {
@@ -48,9 +51,12 @@ body.dark-mode {
 
     --switch-slider-bg: #3f3f46;
     --switch-active-bg: #f97316;
+
+    --preview-bg: #18181b;
+    --preview-border: #3f3f46;
 }
 
-body, .card, input, select, button, table, td, th, .slider {
+body, .card, input, select, button, table, td, th, .slider, .info-preview-box, .modal-card {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -84,8 +90,9 @@ body {
     margin-bottom: 0.25rem;
 }
 
-.header-titles p {
-    color: var(--text-muted);
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .theme-switch-wrapper {
@@ -173,6 +180,12 @@ input:checked + .slider:before {
     gap: 1rem;
 }
 
+.form-actions-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 label {
     display: block;
     font-size: 0.875rem;
@@ -193,6 +206,22 @@ input, select {
 input:focus, select:focus {
     outline: none;
     border-color: var(--btn-primary-bg);
+}
+
+.info-preview-box {
+    background-color: var(--preview-bg);
+    border: 1px dashed var(--preview-border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-color);
+}
+
+.preview-title {
+    font-weight: 700;
+    margin-right: 0.5rem;
+    color: var(--text-muted);
 }
 
 .btn {
@@ -263,6 +292,97 @@ input:focus, select:focus {
     color: white;
 }
 
-.badge-Scheduled { background-color: var(--status-scheduled); }
-.badge-Completed { background-color: var(--status-completed); }
-.badge-Canceled { background-color: var(--status-canceled); }
+.badge-scheduled { background-color: var(--status-scheduled); }
+.badge-completed { background-color: var(--status-completed); }
+.badge-canceled { background-color: var(--status-canceled); }
+
+.eye-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.eye-btn:hover {
+    color: var(--text-color);
+}
+
+.eye-btn:active {
+    transform: translateY(-50%) scale(0.9);
+}
+
+.eye-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.eye-strike {
+    stroke-dasharray: 32;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.eye-btn.active .eye-strike {
+    stroke-dashoffset: 32;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}

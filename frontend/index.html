@@ -10,39 +10,44 @@
 <div class="container">
 
     <header class="header-container">
-
         <div class="header-titles">
             <h1>Appointment Scheduler</h1>
         </div>
 
-        <div class="theme-switch-wrapper">
-            <label class="theme-switch" for="theme-toggle">
-                <input type="checkbox" id="theme-toggle" aria-label="Toggle Dark/Light Mode">
-                <span class="slider"></span>
-            </label>
-            <span class="theme-label">Toggle Theme</span>
+        <div class="header-actions">
+            <button id="open-settings-btn" class="btn btn-sm">Settings</button>
+            <button onclick="logout()" class="btn btn-sm">Logout</button>
         </div>
-
     </header>
 
-
     <section class="card">
-
-        <h2>Book New Appointment</h2>
+        <h2 id="form-title">Book New Appointment</h2>
         <form id="appointment-form">
+            <input type="hidden" id="editing_id" value="">
+
             <div class="form-group">
                 <label for="client_name">Client Name</label>
-                <input type="text" id="client_name" required placeholder="Luiz Stefanelli">
+                <input type="text" id="client_name" required placeholder="John Doe">
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="client_email">Email</label>
-                    <input type="email" id="client_email" required placeholder="stefanelli@email.com">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <label for="client_email" style="margin-bottom: 0;">Email</label>
+                        <label style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            <input type="checkbox" id="no_email_checkbox" style="width: auto;"> No Email
+                        </label>
+                    </div>
+                    <input type="email" id="client_email" required placeholder="john@example.com">
                 </div>
 
                 <div class="form-group">
-                    <label for="client_phone">Phone</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <label for="client_phone" style="margin-bottom: 0;">Phone</label>
+                        <label style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            <input type="checkbox" id="no_phone_checkbox" style="width: auto;"> No Phone
+                        </label>
+                    </div>
                     <input type="tel" id="client_phone" required placeholder="+1 00 00000 0000">
                 </div>
             </div>
@@ -62,12 +67,18 @@
                     <label for="appointment_time">Time</label>
                     <input type="time" id="appointment_time" required>
                 </div>
-
             </div>
 
-            <button type="submit" class="btn btn-primary">Schedule Appointment</button>
-        </form>
+            <div class="form-group">
+                <label for="notes">Notes / Observations <small style="font-weight: normal; color: var(--text-muted);">(Optional)</small></label>
+                <textarea id="notes" placeholder="Add any special instructions or observations..." rows="3" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background-color: var(--card-bg); color: var(--text-color); resize: vertical;"></textarea>
+            </div>
 
+            <div class="form-actions-row">
+                <button type="submit" id="submit-btn" class="btn btn-primary">Schedule Appointment</button>
+                <button type="button" id="cancel-edit-btn" class="btn btn-sm" style="display: none;">Cancel Edit</button>
+            </div>
+        </form>
     </section>
 
     <section class="card">
@@ -85,7 +96,6 @@
         </div>
 
         <table class="data-table">
-
             <thead>
             <tr>
                 <th>Client</th>
@@ -96,11 +106,50 @@
                 <th>Actions</th>
             </tr>
             </thead>
-
             <tbody id="appointments-tbody">
             </tbody>
         </table>
     </section>
+</div>
+
+<div class="modal-overlay" id="settings-modal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Settings</h3>
+            <button type="button" class="close-btn" id="close-settings-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Theme</label>
+                <div class="theme-switch-wrapper" style="align-items: flex-start;">
+                    <label class="theme-switch" for="theme-toggle">
+                        <input type="checkbox" id="theme-toggle" aria-label="Toggle Dark/Light Mode">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="setting-date-format">Date Format</label>
+                <select id="setting-date-format">
+                    <option value="YYYY-MM-DD">YYYY-MM-DD (2026-10-28)</option>
+                    <option value="DD/MM/YYYY">DD/MM/YYYY (28/10/2026)</option>
+                    <option value="MM/DD/YYYY">MM/DD/YYYY (10/28/2026)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="setting-time-format">Time Format</label>
+                <select id="setting-time-format">
+                    <option value="24">24-hour (14:30)</option>
+                    <option value="12">12-hour (02:30 PM)</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" id="save-settings-btn">Save Settings</button>
+        </div>
+    </div>
 </div>
 
 <script src="app.js"></script>

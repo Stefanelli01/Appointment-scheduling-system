@@ -1,16 +1,13 @@
 import os
-import mysql.connector
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_db_connection():
-
-    connection = mysql.connector.connect(
-        host=os.getenv("DB_HOST"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME",),
-        port=os.getenv("DB_PORT")
-    )
-    return connection
+class Config:
+    DB_HOST = os.getenv('DB_HOST',)
+    DB_USER = os.getenv('DB_USER',)
+    DB_PASSWORD = os.getenv('DB_PASSWORD',)
+    DB_NAME = os.getenv('DB_NAME')
+    DB_PORT = os.getenv('DB_PORT')
+    PORT = os.getenv('PORT')
+    SECRET_KEY = os.getenv('SECRET_KEY',)
