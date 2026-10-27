@@ -18,13 +18,14 @@ A simple, modern, and lightweight web application designed to manage, track, and
 
 ### Dark Theme
 
-![Appointment Scheduler - Dark Mode](utils/screenshots/dark_theme_1.png)
-![Appointment Scheduler - Dark Mode](utils/screenshots/dark_theme_2.png)
-
+![Appointment Scheduler - Dark Mode](utils/screenshots/login_dark.png)
+![Appointment Scheduler - Dark Mode](utils/screenshots/register_dark.png)
+![Appointment Scheduler - Dark Mode](utils/screenshots/main_dark.png)
+![Appointment Scheduler - Dark Mode](utils/screenshots/option_dark.png)
 ### Light Theme
 
-![Appointment Scheduler - Dark Mode](utils/screenshots/light_theme_1.png)
-![Appointment Scheduler - Dark Mode](utils/screenshots/light_theme_2.png)
+![Appointment Scheduler - Dark Mode](utils/screenshots/login_light.png)
+![Appointment Scheduler - Dark Mode](utils/screenshots/option_light.png)
 
 ## Run system
 
