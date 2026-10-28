@@ -51,7 +51,7 @@ def token_required(f):
 
 @app.route('/api/register', methods=['POST'])
 def register():
-    data = request.get_json()
+    data = request.get_json() or {}
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
@@ -76,7 +76,7 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    data = request.get_json()
+    data = request.get_json() or {}
     email = data.get('email')
     password = data.get('password')
 
@@ -117,11 +117,11 @@ def get_appointments(current_user_id):
         cursor = conn.cursor(dictionary=True)
 
         if status_filter:
-            query = "SELECT * FROM appointments WHERE status = %s ORDER BY appointment_date, appointment_time"
-            cursor.execute(query, (status_filter,))
+            query = "SELECT * FROM appointments WHERE user_id = %s AND status = %s ORDER BY appointment_date, appointment_time"
+            cursor.execute(query, (current_user_id, status_filter))
         else:
-            query = "SELECT * FROM appointments ORDER BY appointment_date, appointment_time"
-            cursor.execute(query)
+            query = "SELECT * FROM appointments WHERE user_id = %s ORDER BY appointment_date, appointment_time"
+            cursor.execute(query, (current_user_id,))
 
         appointments = cursor.fetchall()
         cursor.close()
@@ -143,13 +143,37 @@ def get_appointments(current_user_id):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/appointments/<int:appt_id>', methods=['GET'])
+@token_required
+def get_appointment_by_id(current_user_id, appt_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT * FROM appointments WHERE id = %s AND user_id = %s",
+            (appt_id, current_user_id)
+        )
+        appt = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not appt:
+            return jsonify({'message': 'Appointment not found!'}), 404
+
+        appt['appointment_date'] = str(appt['appointment_date'])
+        appt['appointment_time'] = str(appt['appointment_time'])
+
+        return jsonify(appt), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/api/appointments', methods=['POST'])
 @token_required
 def create_appointment(current_user_id):
-    data = request.get_json()
+    data = request.get_json() or {}
 
-    required_fields = ['client_name', 'client_email', 'client_phone', 'service_name', 'appointment_date',
-                       'appointment_time']
+    required_fields = ['client_name', 'service_name', 'appointment_date', 'appointment_time']
     for field in required_fields:
         if field not in data or not data[field]:
             return jsonify({"error": f"Missing required field: {field}"}), 400
@@ -159,16 +183,18 @@ def create_appointment(current_user_id):
         cursor = conn.cursor()
 
         query = """
-            INSERT INTO appointments (client_name, client_email, client_phone, service_name, appointment_date, appointment_time)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO appointments (user_id, client_name, client_email, client_phone, service_name, appointment_date, appointment_time, notes)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         values = (
-            data['client_name'],
-            data['client_email'],
-            data['client_phone'],
-            data['service_name'],
+            current_user_id,
+            data['client_name'].strip(),
+            data.get('client_email', '').strip(),
+            data.get('client_phone', '').strip(),
+            data['service_name'].strip(),
             data['appointment_date'],
-            data['appointment_time']
+            data['appointment_time'],
+            data.get('notes', '').strip()
         )
 
         cursor.execute(query, values)
@@ -183,43 +209,46 @@ def create_appointment(current_user_id):
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/appointments/<int:appointment_id>', methods=['PUT'])
+@app.route('/api/appointments/<int:appt_id>', methods=['PUT'])
 @token_required
-def update_appointment(current_user_id, appointment_id):
-    data = request.get_json()
+def update_appointment(current_user_id, appt_id):
+    data = request.get_json() or {}
 
-    required_fields = ['client_name', 'client_email', 'client_phone', 'service_name', 'appointment_date',
-                       'appointment_time']
-    for field in required_fields:
-        if field not in data or not data[field]:
-            return jsonify({"error": f"Missing required field: {field}"}), 400
+    client_name = data.get('client_name', '').strip()
+    service_name = data.get('service_name', '').strip()
+    appointment_date = data.get('appointment_date')
+    appointment_time = data.get('appointment_time')
+
+    if not client_name or not service_name or not appointment_date or not appointment_time:
+        return jsonify({'message': 'Please fill in all required fields!'}), 400
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
         query = """
-            UPDATE appointments 
-            SET client_name = %s, client_email = %s, client_phone = %s, service_name = %s, appointment_date = %s, appointment_time = %s
-            WHERE id = %s
+            UPDATE appointments
+            SET client_name = %s, client_email = %s, client_phone = %s, service_name = %s, appointment_date = %s, appointment_time = %s, notes = %s
+            WHERE id = %s AND user_id = %s
         """
         values = (
-            data['client_name'],
-            data['client_email'],
-            data['client_phone'],
-            data['service_name'],
-            data['appointment_date'],
-            data['appointment_time'],
-            appointment_id
+            client_name,
+            data.get('client_email', '').strip(),
+            data.get('client_phone', '').strip(),
+            service_name,
+            appointment_date,
+            appointment_time,
+            data.get('notes', '').strip(),
+            appt_id,
+            current_user_id
         )
 
         cursor.execute(query, values)
         conn.commit()
-
         cursor.close()
         conn.close()
 
-        return jsonify({"message": "Appointment updated successfully"}), 200
+        return jsonify({'message': 'Appointment updated successfully!'}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -227,7 +256,7 @@ def update_appointment(current_user_id, appointment_id):
 @app.route('/api/appointments/<int:appointment_id>/status', methods=['PATCH'])
 @token_required
 def update_appointment_status(current_user_id, appointment_id):
-    data = request.get_json()
+    data = request.get_json() or {}
     new_status = data.get('status')
 
     if new_status not in ['Scheduled', 'Completed', 'Canceled']:
@@ -237,8 +266,8 @@ def update_appointment_status(current_user_id, appointment_id):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        query = "UPDATE appointments SET status = %s WHERE id = %s"
-        cursor.execute(query, (new_status, appointment_id))
+        query = "UPDATE appointments SET status = %s WHERE id = %s AND user_id = %s"
+        cursor.execute(query, (new_status, appointment_id, current_user_id))
         conn.commit()
 
         cursor.close()
@@ -250,4 +279,4 @@ def update_appointment_status(current_user_id, appointment_id):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=app.config['PORT'], debug=True)
+    app.run(host='0.0.0.0', port=app.config.get('PORT', 5000), debug=True)
